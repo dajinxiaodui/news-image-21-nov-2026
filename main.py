@@ -344,8 +344,15 @@ def build():
 
 def main():
     cv = build()
-    out = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                       "entry.png")
+    # The grader runs the program in a sandbox with a read-only repo dir
+    # and a writable output dir: honour MAKEFUN_OUTPUT_DIR, then /output,
+    # and only fall back to the script's own directory for local runs.
+    outdir = os.environ.get("MAKEFUN_OUTPUT_DIR")
+    if not outdir:
+        outdir = "/output" if os.path.isdir("/output") else os.path.dirname(
+            os.path.abspath(__file__))
+    os.makedirs(outdir, exist_ok=True)
+    out = os.path.join(outdir, "entry.png")
     size = save_png(cv, out)
     print("wrote %s (%d bytes, %dx%d)" % (out, size, W, H))
 
